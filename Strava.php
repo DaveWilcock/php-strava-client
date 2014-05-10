@@ -17,7 +17,7 @@ class Strava {
    const AUTHORIZE_URI = 'https://www.strava.com/oauth/authorize'; // get
    const TOKEN_EXCHANGE_URI = 'https://www.strava.com/oauth/token'; // post
    const API_URI = 'https://www.strava.com/api/v3'; // mixed
-   const CACHE_DIR = '/tmp/';
+   const ACCESS_TOKEN_FILENAME = 'strava-access-token';
 
    /**
     * @var int intClientID
@@ -40,6 +40,11 @@ class Strava {
    private $strRedirectUri = '';
 
    /**
+    * @var string
+    */
+   private $strCacheDirectory = '/tmp/';
+
+   /**
     * Handles the auth
     *
     * @param array $arrConfig
@@ -51,9 +56,15 @@ class Strava {
       $this->strClientSecret = $arrConfig['CLIENT_SECRET'];
       $this->strRedirectUri = $arrConfig['REDIRECT_URI'];
 
+      if (isset($arrConfig['CACHE_DIRECTORY'])) {
+         if (is_dir($arrConfig['CACHE_DIRECTORY']) && is_writable($arrConfig['CACHE_DIRECTORY'])) {
+            $this->strCacheDirectory = $arrConfig['CACHE_DIRECTORY'];
+         }
+      }
+
       /**
        * If the access token is passed in the config array, we can start using the API
-       * straight away. If not, try it from cache, and if still no luck, then  we have to do the whole OAUTH thing.
+       * straight away. If not, try it from cache, and if still no luck, then we have to do the whole OAUTH thing.
        */
       if (isset($arrConfig['ACCESS_TOKEN']) && !empty($arrConfig['ACCESS_TOKEN'])) {
          $this->strAccessToken = $arrConfig['ACCESS_TOKEN'];
@@ -99,10 +110,10 @@ class Strava {
     * @return bool|string
     */
    private function loadAccessTokenFromCache() {
-      if (!file_exists(self::CACHE_DIR . 'access-token')) {
+      if (!file_exists($this->strCacheDirectory . self::ACCESS_TOKEN_FILENAME)) {
          return FALSE;
       }
-      return file_get_contents(self::CACHE_DIR . 'access-token');
+      return file_get_contents($this->strCacheDirectory . self::ACCESS_TOKEN_FILENAME);
    }
 
    /**
@@ -111,11 +122,11 @@ class Strava {
     * @param $strAccessToken
     */
    private function saveAccessTokenToCache($strAccessToken) {
-      file_put_contents(self::CACHE_DIR . 'access-token', $strAccessToken);
+      file_put_contents($this->strCacheDirectory . self::ACCESS_TOKEN_FILENAME, $strAccessToken);
    }
 
    /**
-    * Redirects to the applicatio AUTH page
+    * Redirects to the application AUTH page
     */
    private function redirectToAuthorize() {
       $arrParams = array(
@@ -164,6 +175,7 @@ class Strava {
          }
       }
 
+      // If the response wasn't a 200, the code has probably expired or has been used more than once.
       return FALSE;
 
    }
