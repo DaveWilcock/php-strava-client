@@ -9,3 +9,5 @@ $arrConfig = array(
 );
 
 $objStrava = new \Roflcopter\Strava($arrConfig);
+$objStrava->get('athlete', array());
+$objStrava->get('activities', array());
