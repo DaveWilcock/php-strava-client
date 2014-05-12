@@ -10,7 +10,7 @@ First of you need to construct a configuration array. The array should contain a
 * CLIENT_SECRET
 * REDIRECT_URI
 
-CLIENT_ID and CILENT_SECRET should be taken from the "My API Application" section of the site (https://www.strava.com/settings/api)
+CLIENT_ID and CILENT_SECRET should be taken from the [https://www.strava.com/settings/api](My API Application) section of the site
 
 Optionally, you can supply the following addition configuration options:
 
