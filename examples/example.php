@@ -1,7 +1,5 @@
 <?php
 
-require_once '../src/Roflcopter/Strava.php';
-
 $arrConfig = array(
    'CLIENT_ID' => 1354,
    'CLIENT_SECRET' => 'here is my client secret',
