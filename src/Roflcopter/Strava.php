@@ -92,7 +92,7 @@ class Strava {
    }
 
    /**
-    * Performs an API call, returns stdClass representation of json data
+    * Performs an API call using GET data, returns stdClass representation of json data
     *
     * @param $strEndpointUrl
     * @param $arrParams
@@ -112,6 +112,16 @@ class Strava {
       $objResponse = curl_exec($objCurl);
 
       return json_decode($objResponse);
+
+   }
+
+   /**
+    * Performs an API call using PUT data, returns stdClass representation of json data
+    *
+    * @param $strEndpointUrl
+    * @param $arrParams
+    */
+   public function put($strEndpointUrl, $arrParams) {
 
    }
 
