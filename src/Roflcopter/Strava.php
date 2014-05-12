@@ -2,9 +2,18 @@
 /**
  * Strava.php
  *
- * @author David Wilcock <dwilcock@docnet.nu>
- * @copyright Doctor Net Ltd &copy; 2014
- * @package
+ * LICENSE: THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * @author David Wilcock <dave.wilcock@gmail.com>
+ * @copyright David Wilcock &copy; 2014
+ * @license http://opensource.org/licenses/MIT
+ *
  */
 
 namespace Roflcopter;
@@ -12,7 +21,7 @@ namespace Roflcopter;
 class Strava {
 
    /**
-    * Some Strava consants
+    * Some Strava constants
     */
    const AUTHORIZE_URI = 'https://www.strava.com/oauth/authorize'; // get
    const TOKEN_EXCHANGE_URI = 'https://www.strava.com/oauth/token'; // post
@@ -83,10 +92,11 @@ class Strava {
    }
 
    /**
-    * Performs an API call
+    * Performs an API call, returns stdClass representation of json data
     *
     * @param $strEndpointUrl
     * @param $arrParams
+    * @return stdClass
     */
    public function get($strEndpointUrl, $arrParams) {
       $objCurl = curl_init(self::API_URI . '/' . $strEndpointUrl . '?' . http_build_query($arrParams));
@@ -101,7 +111,8 @@ class Strava {
 
       $objResponse = curl_exec($objCurl);
 
-      echo "<pre>"  . print_r(json_decode($objResponse));
+      return json_decode($objResponse);
+
    }
 
    /**
