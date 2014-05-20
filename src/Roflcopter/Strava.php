@@ -126,7 +126,7 @@ class Strava {
    }
 
    /**
-    * Ronseal ...
+    * Tries to retrieve the access token from local storage
     *
     * @return bool|string
     */
@@ -138,7 +138,7 @@ class Strava {
    }
 
    /**
-    * Ronseal ...
+    * Saves the access token to local storage
     *
     * @param $strAccessToken
     */
