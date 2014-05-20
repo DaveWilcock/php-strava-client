@@ -110,19 +110,44 @@ class Strava {
       curl_setopt_array($objCurl, $arrCurlOptions);
 
       $objResponse = curl_exec($objCurl);
+      $arrInfo = curl_getinfo($objCurl);
+      if ($arrInfo['http_code'] == "401") {
+          $this->cleanupCacheAndRedirect();
+      }
 
       return json_decode($objResponse);
 
    }
 
-   /**
-    * Performs an API call using PUT data, returns stdClass representation of json data
-    *
-    * @param $strEndpointUrl
-    * @param $arrParams
-    */
+    /**
+     * Performs an API call using PUT data, returns stdClass representation of json data
+     *
+     * @param $strEndpointUrl
+     * @param $arrParams
+     * @return mixed
+     */
    public function put($strEndpointUrl, $arrParams) {
+       $objCurl = curl_init(self::API_URI . '/' . $strEndpointUrl);
 
+       $arrCurlOptions = array(
+           CURLOPT_HTTPHEADER => array('Authorization: Bearer ' . $this->strAccessToken),
+           CURLOPT_CUSTOMREQUEST => 'PUT',
+           CURLOPT_POSTFIELDS => http_build_query($arrParams),
+           CURLOPT_RETURNTRANSFER => TRUE,
+           CURLOPT_CONNECTTIMEOUT => 20,
+           CURLOPT_VERBOSE => TRUE,
+           CURLOPT_FOLLOWLOCATION => TRUE
+       );
+
+       curl_setopt_array($objCurl, $arrCurlOptions);
+
+       $objResponse = curl_exec($objCurl);
+       $arrInfo = curl_getinfo($objCurl);
+       if ($arrInfo['http_code'] == "401") {
+           $this->cleanupCacheAndRedirect();
+       }
+
+       return json_decode($objResponse);
    }
 
    /**
@@ -146,6 +171,11 @@ class Strava {
       file_put_contents($this->strCacheDirectory . self::ACCESS_TOKEN_FILENAME, $strAccessToken);
    }
 
+   private function cleanupCacheAndRedirect() {
+      unlink($this->strCacheDirectory . self::ACCESS_TOKEN_FILENAME);
+      $this->redirectToAuthorize();
+   }
+
    /**
     * Redirects to the application AUTH page
     */
@@ -154,7 +184,7 @@ class Strava {
          'client_id' => $this->intClientID,
          'response_type' => 'code',
          'redirect_uri' => $this->strRedirectUri,
-         'scope' => 'view_private'
+         'scope' => 'write'
       );
       $strLocation = self::AUTHORIZE_URI . '?' . http_build_query($arrParams);
       header("Location: " . $strLocation);
