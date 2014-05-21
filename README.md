@@ -9,8 +9,9 @@ First of you need to construct a configuration array. The array should contain a
 * CLIENT_ID
 * CLIENT_SECRET
 * REDIRECT_URI
+* ACCESS SCOPE
 
-CLIENT_ID and CILENT_SECRET should be taken from the [My API Application](https://www.strava.com/settings/api) section of the site
+CLIENT_ID and CILENT_SECRET should be taken from the [My API Application](https://www.strava.com/settings/api) section of the site. Valid ACCESS_SCOPE values can be found in the [Strava API documentation](http://strava.github.io/api/v3/oauth/)
 
 Optionally, you can supply the following addition configuration options:
 
@@ -29,7 +30,8 @@ The following example GETs information about the authenticated athlete:
        'CLIENT_ID' => 1354,
        'CLIENT_SECRET' => 'here is my client secret',
        'REDIRECT_URI' => 'http://localhost/example.php',
-       'CACHE_DIRECTORY' => '/path/to/cache/dir/'
+       'CACHE_DIRECTORY' => '/path/to/cache/dir/',
+       'ACCESS_SCOPE' => 'write'
     );
 
     $objStrava = new \Roflcopter\Strava($arrConfig);
