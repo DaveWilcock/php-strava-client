@@ -29,6 +29,12 @@ class Strava {
    const ACCESS_TOKEN_FILENAME = 'strava-access-token';
 
    /**
+    * _make_request array keys
+    */
+   const HTTP_INFO = 1;
+   const RESPONSE_BODY = 2;
+
+   /**
     * @var int intClientID
     */
    private $intClientID = -1;
@@ -42,6 +48,11 @@ class Strava {
     * @var bool|string
     */
    private $strAccessToken = '';
+
+   /**
+    * @var string
+    */
+   private $strAccessScope = '';
 
    /**
     * @var string
@@ -64,6 +75,7 @@ class Strava {
       $this->intClientID = $arrConfig['CLIENT_ID'];
       $this->strClientSecret = $arrConfig['CLIENT_SECRET'];
       $this->strRedirectUri = $arrConfig['REDIRECT_URI'];
+      $this->strAccessScope = $arrConfig['ACCESS_SCOPE'];
 
       if (isset($arrConfig['CACHE_DIRECTORY'])) {
          if (is_dir($arrConfig['CACHE_DIRECTORY']) && is_writable($arrConfig['CACHE_DIRECTORY'])) {
@@ -96,58 +108,40 @@ class Strava {
     *
     * @param $strEndpointUrl
     * @param $arrParams
-    * @return stdClass
+    * @return mixed
     */
    public function get($strEndpointUrl, $arrParams) {
-      $objCurl = curl_init(self::API_URI . '/' . $strEndpointUrl . '?' . http_build_query($arrParams));
 
-      $arrCurlOptions = array(
-         CURLOPT_HTTPHEADER => array('Authorization: Bearer ' . $this->strAccessToken),
-         CURLOPT_RETURNTRANSFER => TRUE,
-         CURLOPT_CONNECTTIMEOUT => 20
-      );
+      $arrResponse = $this->_make_request(self::API_URI . '/' . $strEndpointUrl . '?' . http_build_query($arrParams), 'GET', $arrParams);
+      $arrInfo = $arrResponse[self::HTTP_INFO];
+      $objResponse = $arrResponse[self::RESPONSE_BODY];
 
-      curl_setopt_array($objCurl, $arrCurlOptions);
-
-      $objResponse = curl_exec($objCurl);
-      $arrInfo = curl_getinfo($objCurl);
       if ($arrInfo['http_code'] == "401") {
-          $this->cleanupCacheAndRedirect();
+         $this->cleanupCacheAndRedirect();
       }
 
-      return json_decode($objResponse);
+      return $objResponse;
 
    }
 
-    /**
-     * Performs an API call using PUT data, returns stdClass representation of json data
-     *
-     * @param $strEndpointUrl
-     * @param $arrParams
-     * @return mixed
-     */
+   /**
+    * Performs an API call using PUT data, returns stdClass representation of json data
+    *
+    * @param $strEndpointUrl
+    * @param $arrParams
+    * @return mixed
+    */
    public function put($strEndpointUrl, $arrParams) {
-       $objCurl = curl_init(self::API_URI . '/' . $strEndpointUrl);
 
-       $arrCurlOptions = array(
-           CURLOPT_HTTPHEADER => array('Authorization: Bearer ' . $this->strAccessToken),
-           CURLOPT_CUSTOMREQUEST => 'PUT',
-           CURLOPT_POSTFIELDS => http_build_query($arrParams),
-           CURLOPT_RETURNTRANSFER => TRUE,
-           CURLOPT_CONNECTTIMEOUT => 20,
-           CURLOPT_VERBOSE => TRUE,
-           CURLOPT_FOLLOWLOCATION => TRUE
-       );
+      $arrResponse = $this->_make_request(self::API_URI . '/' . $strEndpointUrl, 'PUT', $arrParams);
+      $arrInfo = $arrResponse[self::HTTP_INFO];
+      $objResponse = $arrResponse[self::RESPONSE_BODY];
 
-       curl_setopt_array($objCurl, $arrCurlOptions);
+      if ($arrInfo['http_code'] == "401") {
+         $this->cleanupCacheAndRedirect();
+      }
 
-       $objResponse = curl_exec($objCurl);
-       $arrInfo = curl_getinfo($objCurl);
-       if ($arrInfo['http_code'] == "401") {
-           $this->cleanupCacheAndRedirect();
-       }
-
-       return json_decode($objResponse);
+      return json_decode($objResponse);
    }
 
    /**
@@ -159,6 +153,7 @@ class Strava {
       if (!file_exists($this->strCacheDirectory . self::ACCESS_TOKEN_FILENAME)) {
          return FALSE;
       }
+
       return file_get_contents($this->strCacheDirectory . self::ACCESS_TOKEN_FILENAME);
    }
 
@@ -180,12 +175,7 @@ class Strava {
     * Redirects to the application AUTH page
     */
    private function redirectToAuthorize() {
-      $arrParams = array(
-         'client_id' => $this->intClientID,
-         'response_type' => 'code',
-         'redirect_uri' => $this->strRedirectUri,
-         'scope' => 'write'
-      );
+      $arrParams = array('client_id' => $this->intClientID, 'response_type' => 'code', 'redirect_uri' => $this->strRedirectUri, 'scope' => $this->strAccessScope);
       $strLocation = self::AUTHORIZE_URI . '?' . http_build_query($arrParams);
       header("Location: " . $strLocation);
       exit();
@@ -199,29 +189,15 @@ class Strava {
     */
    private function performTokenExchange($strCode) {
 
-      $objCurl = curl_init(self::TOKEN_EXCHANGE_URI);
+      $arrParams = array('client_id' => $this->intClientID, 'client_secret' => $this->strClientSecret, 'code' => $strCode);
+      $arrResponse = $this->_make_request(self::TOKEN_EXCHANGE_URI, 'POST', $arrParams);
+      $arrInfo = $arrResponse[self::HTTP_INFO];
+      $objResponse = $arrResponse[self::RESPONSE_BODY];
 
-      $arrParams = array(
-         'client_id' => $this->intClientID,
-         'client_secret' => $this->strClientSecret,
-         'code' => $strCode
-      );
-
-      $arrCurlOptions = array(
-         CURLOPT_POST => count($arrParams),
-         CURLOPT_POSTFIELDS => http_build_query($arrParams),
-         CURLOPT_RETURNTRANSFER => TRUE,
-         CURLOPT_CONNECTTIMEOUT => 20
-      );
-
-      curl_setopt_array($objCurl, $arrCurlOptions);
-      $strResponse = curl_exec($objCurl);
-      $arrCurlInfo = curl_getinfo($objCurl);
-
-      if ($arrCurlInfo['http_code'] == 200) {
-         $objResponse = json_decode($strResponse);
+      if ($arrInfo['http_code'] == 200) {
          if (isset($objResponse->access_token)) {
             $this->saveAccessTokenToCache($objResponse->access_token);
+
             return $objResponse->access_token;
          }
       }
@@ -229,6 +205,50 @@ class Strava {
       // If the response wasn't a 200, the code has probably expired or has been used more than once.
       return FALSE;
 
+   }
+
+   /**
+    * Makes the actual API request
+    *
+    * @param $strUri
+    * @param $strType
+    * @param $arrParams
+    * @return array
+    */
+   private function _make_request($strUri, $strType, $arrParams) {
+
+      $objCurl = curl_init($strUri);
+      $arrCurlOptions = array(
+         CURLOPT_RETURNTRANSFER => TRUE,
+         CURLOPT_CONNECTTIMEOUT => 20,
+         CURLOPT_FOLLOWLOCATION => TRUE,
+         CURLOPT_POSTFIELDS => http_build_query($arrParams)
+      );
+
+      if (!empty($this->strAccessToken)) {
+         $arrCurlOptions[CURLOPT_HTTPHEADER] = array('Authorization: Bearer ' . $this->strAccessToken);
+      }
+
+      switch ($strType) {
+
+         case 'PUT':
+            $arrCurlOptions[CURLOPT_CUSTOMREQUEST] = 'PUT';
+            break;
+
+         case 'POST':
+            $arrCurlOptions[CURLOPT_POST] = TRUE;
+            break;
+      }
+
+      curl_setopt_array($objCurl, $arrCurlOptions);
+
+      $objResponse = curl_exec($objCurl);
+      $arrInfo = curl_getinfo($objCurl);
+      if ($arrInfo['http_code'] == "401") {
+         $this->cleanupCacheAndRedirect();
+      }
+
+      return array(self::HTTP_INFO => $arrInfo, self::RESPONSE_BODY => json_decode($objResponse));
    }
 
 }
