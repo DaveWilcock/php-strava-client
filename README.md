@@ -1,4 +1,4 @@
-# Roflcopter Strava v3 API Library
+# Strava v3 API Client
 
 This is a single-file-library that you can use to interrogate the Strava v3 API. It handles authentication as well as whatever API calls you want to me (as long as they are valid)
 
@@ -11,7 +11,7 @@ First of you need to construct a configuration array. The array should contain a
 * REDIRECT_URI
 * ACCESS SCOPE
 
-CLIENT_ID and CILENT_SECRET should be taken from the [My API Application](https://www.strava.com/settings/api) section of the site. Valid ACCESS_SCOPE values can be found in the [Strava API documentation](http://strava.github.io/api/v3/oauth/)
+CLIENT_ID and CLIENT_SECRET should be taken from the [My API Application](https://www.strava.com/settings/api) section of the site. Valid ACCESS_SCOPE values can be found in the [Strava API documentation](http://strava.github.io/api/v3/oauth/)
 
 Optionally, you can supply the following addition configuration options:
 
@@ -25,7 +25,7 @@ If ACCESS_TOKEN is supplied, we bypass authorization and token exchange - assumi
 ## Examples
 
 To configure the client, you would define your parameters as follows:
-
+    <?php
     $arrConfig = array(
        'CLIENT_ID' => 1354,
        'CLIENT_SECRET' => 'here is my client secret',
@@ -36,13 +36,19 @@ To configure the client, you would define your parameters as follows:
 
 The following example GETs information about the authenticated athlete:
 
+    <?php
     $objStrava = new \Roflcopter\Strava($arrConfig);
     print_r($objStrava->get('athlete', array()));
 
 The following example PUTs (updates) the weight information for the current athlete:
 
+    <?php
     $objStrava = new \Roflcopter\Strava($arrConfig);
     print_r($objStrava->put('athlete', array('weight' => 62.8)));
+
+## Notes
+
+Currently the library will only store a single access token, so isn't ready for multi-user authentication. This is expected to change in the future, with token storage abstracted out.
 
 ## References
 
