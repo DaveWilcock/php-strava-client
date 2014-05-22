@@ -40,17 +40,17 @@ $arrConfig = array(
 The following example GETs information about the authenticated athlete:
 
 ```php
-    <?php
-    $objStrava = new \Roflcopter\Strava($arrConfig);
-    print_r($objStrava->get('athlete', array()));
+<?php
+$objStrava = new \Roflcopter\Strava($arrConfig);
+print_r($objStrava->get('athlete', array()));
 ```
 
 The following example PUTs (updates) the weight information for the current athlete:
 
 ```php
-    <?php
-    $objStrava = new \Roflcopter\Strava($arrConfig);
-    print_r($objStrava->put('athlete', array('weight' => 62.8)));
+<?php
+$objStrava = new \Roflcopter\Strava($arrConfig);
+print_r($objStrava->put('athlete', array('weight' => 62.8)));
 ```
 
 ## Notes
