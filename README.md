@@ -25,26 +25,33 @@ If ACCESS_TOKEN is supplied, we bypass authorization and token exchange - assumi
 ## Examples
 
 To configure the client, you would define your parameters as follows:
-    <?php
-    $arrConfig = array(
-       'CLIENT_ID' => 1354,
-       'CLIENT_SECRET' => 'here is my client secret',
-       'REDIRECT_URI' => 'http://localhost/example.php',
-       'CACHE_DIRECTORY' => '/path/to/cache/dir/',
-       'ACCESS_SCOPE' => 'write'
-    );
+
+```php
+<?php
+$arrConfig = array(
+   'CLIENT_ID' => 1354,
+   'CLIENT_SECRET' => 'here is my client secret',
+   'REDIRECT_URI' => 'http://localhost/example.php',
+   'CACHE_DIRECTORY' => '/path/to/cache/dir/',
+   'ACCESS_SCOPE' => 'write'
+);
+```
 
 The following example GETs information about the authenticated athlete:
 
+```php
     <?php
     $objStrava = new \Roflcopter\Strava($arrConfig);
     print_r($objStrava->get('athlete', array()));
+```
 
 The following example PUTs (updates) the weight information for the current athlete:
 
+```php
     <?php
     $objStrava = new \Roflcopter\Strava($arrConfig);
     print_r($objStrava->put('athlete', array('weight' => 62.8)));
+```
 
 ## Notes
 
