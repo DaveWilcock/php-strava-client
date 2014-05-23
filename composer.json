@@ -1,6 +1,6 @@
 {
    "name": "dawguk/strava",
-   "description": "A small library to interrogate the Strava v3 API",
+   "description": "A simple-to-use (single file!) library to easily interrogate the Strava v3 API",
    "require": {
         "php": ">=5.3.0"
     },
