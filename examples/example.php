@@ -7,5 +7,5 @@ $arrConfig = array(
    'CACHE_DIRECTORY' => '/path/to/cache/dir/'
 );
 
-$objStrava = new \dawguk\Strava($arrConfig);
+$objStrava = new \Roflcopter\Strava($arrConfig);
 print_r($objStrava->get('athlete', array()));
