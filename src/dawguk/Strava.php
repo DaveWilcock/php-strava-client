@@ -16,7 +16,7 @@
  *
  */
 
-namespace Dawguk;
+namespace dawguk;
 
 class Strava {
 

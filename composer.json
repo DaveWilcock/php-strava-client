@@ -1,5 +1,5 @@
 {
-   "name": "Dawguk/strava",
+   "name": "dawguk/strava",
    "description": "A small library to interrogate the Strava v3 API",
    "require": {
         "php": ">=5.3.0"
