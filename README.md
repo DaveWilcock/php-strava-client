@@ -57,6 +57,8 @@ print_r($objStrava->put('athlete', array('weight' => 62.8)));
 
 Currently the library will only store a single access token, so isn't ready for multi-user authentication. This is expected to change in the future, with token storage abstracted out.
 
+Now available on packagist.org ;D
+
 ## References
 
 [http://strava.github.io/api/v3](http://strava.github.io/api/v3) is a good place to start.
