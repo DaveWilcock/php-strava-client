@@ -18,6 +18,8 @@
 
 namespace dawguk;
 
+use Composer\Autoload\ClassLoader;
+
 class Strava {
 
    /**
@@ -141,7 +143,52 @@ class Strava {
          $this->cleanupCacheAndRedirect();
       }
 
-      return json_decode($objResponse);
+      return $objResponse;
+   }
+
+   /**
+    * Posts a pre-generated file to Strava
+    *
+    * @param $strFilename
+    * @param $strActivityType
+    * @param $strDataType
+    * @return mixed
+    * @throws \Exception
+    */
+   public function postActivity($strFilename, $strActivityType, $strDataType) {
+
+      /**
+       * Bit of a hack for version of PHP < 5.5
+       */
+      if (!function_exists('curl_file_create')) {
+         function curl_file_create($strFilename, $strMimeType = '', $strPostname = '') {
+            return "@$strFilename;filename="
+            . ($strPostname ?: basename($strFilename))
+            . ($strMimeType ? ";type=$strMimeType" : '');
+         }
+      }
+
+      $objCurlFile = curl_file_create($strFilename, 'application/xml');
+
+      $arrParams = array(
+         'activity_type' => $strActivityType,
+         'file' => $objCurlFile,
+         'data_type' => $strDataType
+      );
+
+      $arrResponse = $this->_make_request(self::API_URI . '/uploads', 'POST', $arrParams);
+      $arrInfo = $arrResponse[self::HTTP_INFO];
+      $objResponse = $arrResponse[self::RESPONSE_BODY];
+
+      /**
+       * 201 - CREATED
+       */
+      if ($arrInfo['http_code'] != "201") {
+         throw new \Exception("Upload failed: " . $objResponse->message);
+      }
+
+      return $objResponse;
+
    }
 
    /**
@@ -219,10 +266,10 @@ class Strava {
 
       $objCurl = curl_init($strUri);
       $arrCurlOptions = array(
+         CURLOPT_FRESH_CONNECT => TRUE,
          CURLOPT_RETURNTRANSFER => TRUE,
          CURLOPT_CONNECTTIMEOUT => 20,
-         CURLOPT_FOLLOWLOCATION => TRUE,
-         CURLOPT_POSTFIELDS => http_build_query($arrParams)
+         CURLOPT_FOLLOWLOCATION => TRUE
       );
 
       if (!empty($this->strAccessToken)) {
@@ -233,11 +280,14 @@ class Strava {
 
          case 'PUT':
             $arrCurlOptions[CURLOPT_CUSTOMREQUEST] = 'PUT';
+            $arrCurlOptions[CURLOPT_POSTFIELDS] = http_build_query($arrParams);
             break;
 
          case 'POST':
             $arrCurlOptions[CURLOPT_POST] = TRUE;
+            $arrCurlOptions[CURLOPT_POSTFIELDS] = $arrParams;
             break;
+
       }
 
       curl_setopt_array($objCurl, $arrCurlOptions);
