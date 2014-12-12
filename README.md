@@ -41,7 +41,7 @@ The following example GETs information about the authenticated athlete:
 
 ```php
 <?php
-$objStrava = new \Roflcopter\Strava($arrConfig);
+$objStrava = new \dawguk\Strava($arrConfig);
 print_r($objStrava->get('athlete', array()));
 ```
 
@@ -49,7 +49,7 @@ The following example PUTs (updates) the weight information for the current athl
 
 ```php
 <?php
-$objStrava = new \Roflcopter\Strava($arrConfig);
+$objStrava = new \dawguk\Strava($arrConfig);
 print_r($objStrava->put('athlete', array('weight' => 62.8)));
 ```
 
