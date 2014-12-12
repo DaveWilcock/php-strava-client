@@ -1,6 +1,6 @@
 # Strava v3 API Client
 
-This is a single-file-library that you can use to interrogate the Strava v3 API. It handles authentication as well as whatever API calls you want to me (as long as they are valid)
+This is a single-file-library that you can use to interrogate the Strava v3 API. It handles authentication as well as whatever API calls you want to make (as long as they are valid)
 
 ## Usage
 
