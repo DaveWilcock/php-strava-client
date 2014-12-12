@@ -4,7 +4,7 @@ This is a single-file-library that you can use to interrogate the Strava v3 API.
 
 ## Usage
 
-First of you need to construct a configuration array. The array should contain at least the following information:
+First off you need to construct a configuration array. The array should contain at least the following information:
 
 * CLIENT_ID
 * CLIENT_SECRET
