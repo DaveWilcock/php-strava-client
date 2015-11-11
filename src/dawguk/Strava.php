@@ -222,7 +222,7 @@ class Strava {
     * @param $strCode
     * @return bool
     */
-   private function performTokenExchange($strCode) {
+   public function performTokenExchange($strCode) {
 
       $arrParams = array('client_id' => $this->intClientID, 'client_secret' => $this->strClientSecret, 'code' => $strCode);
       $arrResponse = $this->_make_request(self::TOKEN_EXCHANGE_URI, 'POST', $arrParams);
