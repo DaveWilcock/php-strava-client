@@ -219,12 +219,20 @@ class Strava {
    }
 
    /**
+    * Returns the authorization URL
+    *
+    * @return string
+    */
+   public function getAuthorizeURL() {
+      $arrParams = array('client_id' => $this->intClientID, 'response_type' => 'code', 'redirect_uri' => $this->strRedirectUri, 'scope' => $this->strAccessScope);
+      return self::AUTHORIZE_URI . '?' . http_build_query($arrParams);
+   }
+
+   /**
     * Redirects to the application AUTH page
     */
    private function redirectToAuthorize() {
-      $arrParams = array('client_id' => $this->intClientID, 'response_type' => 'code', 'redirect_uri' => $this->strRedirectUri, 'scope' => $this->strAccessScope);
-      $strLocation = self::AUTHORIZE_URI . '?' . http_build_query($arrParams);
-      header("Location: " . $strLocation);
+      header("Location: " . $this->getAuthorizeURL());
       exit();
    }
 
