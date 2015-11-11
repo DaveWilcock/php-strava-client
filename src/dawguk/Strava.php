@@ -79,30 +79,10 @@ class Strava {
       $this->strRedirectUri = $arrConfig['REDIRECT_URI'];
       $this->strAccessScope = $arrConfig['ACCESS_SCOPE'];
 
-      if (isset($arrConfig['CACHE_DIRECTORY'])) {
-         if (is_dir($arrConfig['CACHE_DIRECTORY']) && is_writable($arrConfig['CACHE_DIRECTORY'])) {
-            $this->strCacheDirectory = $arrConfig['CACHE_DIRECTORY'];
-         }
-      }
-
-      /**
-       * If the access token is passed in the config array, we can start using the API
-       * straight away. If not, try it from cache, and if still no luck, then we have to do the whole OAUTH thing.
-       */
       if (isset($arrConfig['ACCESS_TOKEN']) && !empty($arrConfig['ACCESS_TOKEN'])) {
          $this->strAccessToken = $arrConfig['ACCESS_TOKEN'];
-      } elseif (($this->strAccessToken = $this->loadAccessTokenFromCache()) === FALSE) {
-         if (!isset($_GET['code'])) {
-            $this->redirectToAuthorize();
-         } else {
-            $this->strAccessToken = $this->performTokenExchange($_GET['code']);
-         }
       }
 
-      // Really should only get here if the Token Exchange request failed
-      if (empty($this->strAccessToken)) {
-         throw new \Exception("Unable to acquire a valid Access Token");
-      }
    }
 
    /**
