@@ -18,8 +18,6 @@
 
 namespace dawguk;
 
-use Composer\Autoload\ClassLoader;
-
 class Strava {
 
    /**
@@ -230,11 +228,7 @@ class Strava {
       $objResponse = $arrResponse[self::RESPONSE_BODY];
 
       if ($arrInfo['http_code'] == 200) {
-         if (isset($objResponse->access_token)) {
-            $this->saveAccessTokenToCache($objResponse->access_token);
-
-            return $objResponse->access_token;
-         }
+         return $objResponse;
       }
 
       // If the response wasn't a 200, the code has probably expired or has been used more than once.
